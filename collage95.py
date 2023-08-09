@@ -4,6 +4,7 @@ import time
 import os
 from os import listdir
 print("it probably makes sense to just hit enter the first time at least")
+
 def main(repeats):
     faff = input("Welcome to the Collage Zone. Do you want to faff? ")
     if (
@@ -19,7 +20,7 @@ def main(repeats):
         print_folder = layout(pix, min_side, params, area)
         coll(print_folder)
         return
-    print("just hit enter next time. you're being transferred to the advanced suite")
+    print("just hit enter next time. you're being transferred to the advanced suite, which is not working well")
     for i in range(repeats):
         pass
     return semi_advanced_suite(repeats)
@@ -55,6 +56,7 @@ def advanced_suite(repeats):
             if i == 0:
                 if rep != 0:
                     if text.lower() == "rs":
+                        print("ths isn't working well ATM")
                         params[-1] += 1
                         print_folder = layout(pix, min_side, params, area)
                         coll(print_folder)
@@ -129,12 +131,18 @@ def layout(pix, min_side, params, area):
             sprawlingest = [area, pic]
     wide = []
     tall = []
+    min_max_side = min_side
     for pic in pix:
         if pic[1] >= min_side:
+            min_max_side = pic[1]
             wide.append(pic)
             continue
         if pic[2] >= min_side:
+            min_side = pic[2]
             tall.append(pic)
+    if min_max_side > min_side:
+        min_side = min_max_side
+    
     if len(wide) + len(tall) == 0 and len(pix) > 3:
         print("this won't be good")
     orientation = 0
