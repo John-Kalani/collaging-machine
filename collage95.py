@@ -17,6 +17,7 @@ def main(repeats):
         return advanced_suite(repeats)
     if faff == "":
         pix, min_side, params, area = getpix()
+        findmostcompact(len(pix))
         print_folder = layout(pix, min_side, params, area)
         coll(print_folder)
         return
@@ -24,6 +25,17 @@ def main(repeats):
     for i in range(repeats):
         pass
     return semi_advanced_suite(repeats)
+
+def findmostcompact(x):
+    min_area = [10**10, []]
+    for i in range(1, x):
+        pix, min_side, params, area = getpix()
+        params[-1] = i
+        print_folder = layout(pix, min_side, params, area)
+        total_area = print_folder[1][0] * print_folder[1][1]
+        if total_area < min_area[0]:
+            min_area = [total_area, print_folder]
+    coll(min_area[1])
 
 
 def coll(print_folder):
@@ -46,7 +58,7 @@ def advanced_suite(repeats):
         "do you want to reshuffle? Type 'rs' ",
         "how much border do you like? ",
         "How much top border do you like? ",
-        "How much edge border do you like? ",
+        "How much side border do you like? ",
     )
     print("feature not working well, lower numbers work better than larger")
     params = [0, 0, 0, 0]
@@ -84,7 +96,7 @@ def semi_advanced_suite(repeats):
     displayed = (
         "how much border do you like? - type as many 'b's as you fancy (preferably not many) ",
         "How much top border do you like? - type as many 'b's as you fancy ",
-        "How much edge border do you like? - type as many 'b's as you fancy ",
+        "How much side border do you like? - type as many 'b's as you fancy ",
     )
     params = [0, 0, 0, 0]
     for rep in range(repeats):
@@ -228,6 +240,9 @@ def draw(pix, orientation, sprawlingest, widest_tallest, params, min_side, area)
     if len(print_folder) == 0:
         print_folder.append(sprawlingest)
         pix.remove(sprawlingest)
+##    if len(print_folder) == 0:
+##        print_folder.append(widest_tallest[aspect])
+##        pix.remove(widest_tallest[aspect)
 
     while len(pix) > 0:
         next_pic = nextpic(pix, print_folder, min_side, border, orientation, aspect)
