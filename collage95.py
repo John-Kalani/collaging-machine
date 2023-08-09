@@ -17,7 +17,7 @@ def main(repeats):
         return advanced_suite(repeats)
     if faff == "":
         pix = getpix()[0]
-        findmostcompact(len(pix))
+        findmostcompact(len(pix)**2)
         return
     print("just hit enter next time. you're being transferred to the advanced suite, which is not working well")
     for i in range(repeats):
