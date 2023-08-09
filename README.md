@@ -5,4 +5,4 @@ It's not currently working perfectly, but it generally prints an irregular colla
 
 note that it doesn't resize - the ultimate aim is for the output to be potentially worthy of consideration for printing, so files might be big and take a while to load..
 
-also note that get_pix() searches for ".DS_Store" and ignores this file. That the folder "coll" unavoidably contains such a file was discovered by trial and error, so I have no idea if others will encounter other such problematic files. Consequetly I will replace the equality with a set to which other filenames can be added 
+also note that get_pix() searches for ".DS_Store" and ignores this file. That the folder "coll" unavoidably contains such a file was discovered by trial and error, so I have no idea if others will encounter other such problematic files. So the equality should be replaced with a set to which other filenames can be added...
