@@ -68,6 +68,7 @@ def advanced_suite(repeats):
             params[i - 1] = float(text)
         if text.lower() == "rs":
             continue
+        params[-1] = 0
         print_folder = layout(pix, min_side, params, area)
         coll(print_folder)
         
