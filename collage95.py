@@ -142,6 +142,7 @@ def layout(pix, min_side, params, area):
             tall.append(pic)
     if min_max_side > min_side:
         min_side = min_max_side
+    min_side = int(min_side * 1.5)
     
     if len(wide) + len(tall) == 0 and len(pix) > 3:
         print("this won't be good")
@@ -207,6 +208,7 @@ def draw(pix, orientation, sprawlingest, widest_tallest, params, min_side, area)
                 print_folder[-1][aspect + 3] = (
                     mostawkward + print_folder[-1 - i][aspect + 3] + border
                 )
+                break
 
     print_folder = []
     border = int((area / len(pix))**0.5 * params[0])
