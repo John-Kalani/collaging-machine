@@ -3,9 +3,7 @@ from PIL import Image
 import time
 import os
 from os import listdir
-import random
-
-
+print("it probably makes sense to just hit enter the first time at least")
 def main(repeats):
     faff = input("Welcome to the Collage Zone. Do you want to faff? ")
     if (
@@ -49,6 +47,7 @@ def advanced_suite(repeats):
         "How much top border do you like? ",
         "How much edge border do you like? ",
     )
+    print("feature not working well, lower numbers work better than larger")
     params = [0, 0, 0, 0]
     for rep in range(repeats):
         for i in range(len(displayed)):
@@ -56,7 +55,6 @@ def advanced_suite(repeats):
             if i == 0:
                 if rep != 0:
                     if text.lower() == "rs":
-                        print("feature currently unavailable")
                         params[-1] += 1
                         print_folder = layout(pix, min_side, params, area)
                         coll(print_folder)
@@ -81,7 +79,7 @@ def semi_advanced_suite(repeats):
 
     pix, min_side, params, area = getpix()
     displayed = (
-        "how much border do you like? - type as many 'b's as you fancy ",
+        "how much border do you like? - type as many 'b's as you fancy (preferably not many) ",
         "How much top border do you like? - type as many 'b's as you fancy ",
         "How much edge border do you like? - type as many 'b's as you fancy ",
     )
@@ -122,7 +120,6 @@ def layout(pix, min_side, params, area):
     tallest = [0, 0, 0, 0, 0]
     sprawlingest = [0]
     for pic in pix:
-        print("S")
         if pic[1] > widest[1]:
             widest = pic
         if pic[2] > tallest[2]:
