@@ -16,10 +16,8 @@ def main(repeats):
     ):
         return advanced_suite(repeats)
     if faff == "":
-        pix, min_side, params, area = getpix()
+        pix = getpix()[0]
         findmostcompact(len(pix))
-        print_folder = layout(pix, min_side, params, area)
-        coll(print_folder)
         return
     print("just hit enter next time. you're being transferred to the advanced suite, which is not working well")
     for i in range(repeats):
@@ -43,6 +41,7 @@ def coll(print_folder):
     for name in print_folder[0]:
         collage.paste(Image.open(name[0]), (name[3], name[4]))
     collage.show()
+    collage.save("coll"+str(int(time.time()))+".jpg",quality=50) 
 
 
 def advanced_suite(repeats):
@@ -60,7 +59,6 @@ def advanced_suite(repeats):
         "How much top border do you like? ",
         "How much side border do you like? ",
     )
-    print("feature not working well, lower numbers work better than larger")
     params = [0, 0, 0, 0]
     for rep in range(repeats):
         for i in range(len(displayed)):
@@ -74,8 +72,8 @@ def advanced_suite(repeats):
                         coll(print_folder)
                         break
                 continue
-            while not isfloat(text) or float(text) < -5 or float(text) > 9.9:
-                print("enter a number between 0.1 and 8")
+            while not isfloat(text) or float(text) < -5 or float(text) > 20:
+                print("enter a number between 0.1 and 10")
                 text = input(displayed[i])
             params[i - 1] = float(text)
         if text.lower() == "rs":
@@ -94,7 +92,7 @@ def semi_advanced_suite(repeats):
 
     pix, min_side, params, area = getpix()
     displayed = (
-        "how much border do you like? - type as many 'b's as you fancy (preferably not many) ",
+        "how much border do you like? - type as many 'b's as you fancy ",
         "How much top border do you like? - type as many 'b's as you fancy ",
         "How much side border do you like? - type as many 'b's as you fancy ",
     )
@@ -127,7 +125,7 @@ def getpix():
     for i in range(len(pix)):
         pix[i].append(i)
     min_length = int(area**0.5)
-    return pix, min_length, [1, 1, 1, 0], area
+    return pix, min_length, [0.5, 5, 5, 0], area
 
 
 def layout(pix, min_side, params, area):
