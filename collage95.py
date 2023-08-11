@@ -3,6 +3,7 @@ from PIL import Image
 import time
 import os
 from os import listdir
+import copy
 print("it probably makes sense to just hit enter the first time at least")
 
 def main(repeats):
@@ -14,7 +15,7 @@ def main(repeats):
         and faff[0] in {"y", "Y"}
         and faff[1] in {"e", "E"}
     ):
-        return semi_advanced_suite(repeats)
+        return advanced_suite(repeats)
     if (
         faff in {"", "n", "N"}
         or len(faff) < 4
@@ -23,9 +24,7 @@ def main(repeats):
         pix = getpix()[0]
         printmostcompact(len(pix)**2)
         return
-    print("just hit enter next time. you're being transferred to the advanced suite, which is not working well")
-    for i in range(repeats):
-        pass
+
     return semi_advanced_suite(repeats)
 
 def printmostcompact(x):
@@ -72,7 +71,7 @@ def advanced_suite(repeats):
                 if rep != 0:
                     if text.lower() == "rs":
                         params[-1] += 1
-                        print_complete = layout(pix.copy(), min_side, params, area)
+                        print_complete = layout(copy.deepcopy(pix), min_side, params, area)
                         coll(print_complete)
                         break
                 continue
@@ -83,7 +82,7 @@ def advanced_suite(repeats):
         if text.lower() == "rs":
             continue
         params[-1] = 0
-        print_complete = layout(pix.copy(), min_side, params, area)
+        print_complete = layout(copy.deepcopy(pix), min_side, params, area)
         coll(print_complete)
         
 def semi_advanced_suite(repeats):
@@ -104,8 +103,9 @@ def semi_advanced_suite(repeats):
                     b += 1
             
             params[i] = b
-        
-        print_complete = layout(pix, min_side, params, area)
+        print(pix.copy(), min_side, params, area)
+        print_complete = layout(copy.deepcopy(pix), min_side, params, area)
+        print(params)
         coll(print_complete)
         
 def getpix():
@@ -275,100 +275,6 @@ def draw(pix, orientation, sprawlingest, widest_tallest, params, min_side, area)
         pic[4] += top
 
     return (print_folder, (x + 2 * side, y + 2 * top))
-
-
-# return final folder with printing coordinates for each pic
-def draw2(pix, orientation, sprawlingest, widest_tallest, params, min_side, area):
-    # determine which pic to add next
-    def nextpic(pix, print_folder, min_side, border, orientation, aspect):
-        for pic in pix:
-            if (
-                pic[1 + orientation]
-                + print_folder[-1][1 + orientation]
-                + print_folder[-1][3 + orientation]
-                + border
-                < min_side
-            ):
-                return pic
-        return pix[0]
-
-    # add x,y coordinates to the most recently added pic
-    def addcoordinates(print_folder, min_side, border, orientation, aspect):
-        if (
-            print_folder[-1][orientation + 1]
-            + print_folder[-2][orientation + 1]
-            + print_folder[-2][orientation + 3]
-            + border
-            < min_side
-        ):
-            print_folder[-1][orientation + 3] = (
-                print_folder[-2][orientation + 1]
-                + print_folder[-2][orientation + 3]
-                + border
-            )
-            print_folder[-1][aspect + 3] = print_folder[-2][aspect + 3]
-        else:
-            # find the most awkward pic added to print_folder recently, and copy its awkward height/width as 'mostawkward'
-            mostawkward = 0
-            for i in range(1, len(print_folder)):
-                if print_folder[-1 - i][aspect + 1] > mostawkward:
-                    mostawkward = print_folder[-1 - i][aspect + 1]
-                if print_folder[-1 - i][orientation + 3] != 0:
-                    continue
-                # populate the coordinates with the correct layout data
-                print_folder[-1][orientation + 3] = 0
-                print_folder[-1][aspect + 3] = (
-                    mostawkward + print_folder[-1 - i][aspect + 3] + border
-                )
-                break
-
-    print_folder = []
-    border = int((area / len(pix))**0.5 * params[0])
-    aspect = 1
-    if orientation == 1:
-        aspect = 0
-    ## add 'random' pics to print_folder
-    rand = params[-1]
-    while rand > 0 and len(pix) > 0:
-        print_folder.append(pix[params[-1] % len(pix)])
-        pix.remove(pix[params[-1] % len(pix)])
-        if len(print_folder) > 1:
-            addcoordinates(print_folder, min_side, border, orientation, aspect)
-        rand -= 1
-
-##    if len(print_folder) == 0:
-##        print_folder.append(sprawlingest)
-##        pix.remove(sprawlingest)
-    if len(print_folder) == 0:
-        print_folder.append(widest_tallest[orientation])
-        pix.remove(widest_tallest[orientation])
-
-    while len(pix) > 0:
-        next_pic = nextpic(pix, print_folder, min_side, border, orientation, aspect)
-        pix.remove(next_pic)
-        print_folder.append(next_pic)
-        addcoordinates(print_folder, min_side, border, orientation, aspect)
-
-    # get size of the grid
-    x = 0
-    y = 0
-    for pic in print_folder:
-        if pic[1] + pic[3] > x:
-            x = pic[1] + pic[3]
-        if pic[2] + pic[4] > y:
-            y = pic[2] + pic[4]
-
-    # add top and side borders
-    top = int(params[1] * border / 5)
-    side = int(params[2] * border / 5)
-
-    # increase all coordinates in light of top/bottom and side borders
-    for pic in print_folder:
-        pic[3] += side
-        pic[4] += top
-
-    return (print_folder, (x + 2 * side, y + 2 * top))
-
 
 if __name__ == "__main__":
     main(5)
