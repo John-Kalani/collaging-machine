@@ -14,8 +14,12 @@ def main(repeats):
         and faff[0] in {"y", "Y"}
         and faff[1] in {"e", "E"}
     ):
-        return advanced_suite(repeats)
-    if faff == "":
+        return semi_advanced_suite(repeats)
+    if (
+        faff in {"", "n", "N"}
+        or len(faff) < 4
+        and faff[0].lower() == "n"
+    ):
         pix = getpix()[0]
         printmostcompact(len(pix)**2)
         return
@@ -41,7 +45,7 @@ def coll(print_complete):
     for name in print_complete[0]:
         collage.paste(Image.open(name[0]), (name[3], name[4]))
     collage.show()
-    collage.save("coll"+str(int(time.time()))+".jpg",quality=99) 
+    collage.save("coll"+str(int(time.time()))+".jpg",quality=40) 
 
 
 def advanced_suite(repeats):
