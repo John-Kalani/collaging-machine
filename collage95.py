@@ -78,7 +78,7 @@ def advanced_suite(repeats):
             while not isfloat(text) or float(text) < -5 or float(text) > 20:
                 print("enter a number between 0.1 and 10")
                 text = input(displayed[i])
-            params[i - 1] = float(text)
+            params[i - 1] = float(text) / 2
         if text.lower() == "rs":
             continue
         params[-1] = 0
@@ -89,7 +89,7 @@ def semi_advanced_suite(repeats):
 
     pix, min_side, params, area = getpix()
     displayed = (
-        "how much border do you like? - type as many 'b's as you fancy ",
+        "how much border do you like? - type as many 'b's as you fancy (don't go overboard!)",
         "How much top border do you like? - type as many 'b's as you fancy ",
         "How much side border do you like? - type as many 'b's as you fancy ",
     )
@@ -102,10 +102,8 @@ def semi_advanced_suite(repeats):
                 if char in {"b", "B"}:
                     b += 1
             
-            params[i] = b
-        print(pix.copy(), min_side, params, area)
+            params[i] = 0.4 * 1.5**b
         print_complete = layout(copy.deepcopy(pix), min_side, params, area)
-        print(params)
         coll(print_complete)
         
 def getpix():
@@ -123,7 +121,7 @@ def getpix():
     for i in range(len(pix)):
         pix[i].append(i)
     min_length = int(area**0.5)
-    return pix, min_length, [0.5, 5, 5, 0], area
+    return pix, min_length, [1, 1, 1, 0], area
 
 
 def layout(pix, min_side, params, area):
@@ -153,14 +151,13 @@ def layout(pix, min_side, params, area):
         min_side = min_max_side
     min_side = int(min_side * 1.5)
     
-    if len(wide) + len(tall) == 0 and len(pix) > 3:
+    if len(wide) + len(tall) == 0 and len(pix) < 4:
         pass
     orientation = 0
     if tallest[2] > widest[1]:
         orientation = 1
     if tallest[2] * 1.5 > widest[1] and len(tall) > 0:
         orientation = 1
-    dimensions = [int(1.5 * min_side), min_side]
     widest_tallest = [widest, tallest]
     if len(pix) < 2:
         error = input(
@@ -169,7 +166,7 @@ def layout(pix, min_side, params, area):
         if error == "n":
             quit()
     print_complete = draw(
-        pix.copy(), orientation, sprawlingest[1], widest_tallest, params, min_side, area
+        pix, orientation, sprawlingest[1], widest_tallest, params, min_side, area
     )
     return print_complete
 
@@ -230,7 +227,9 @@ def draw(pix, orientation, sprawlingest, widest_tallest, params, min_side, area)
                 break
 
     print_folder = []
-    border = int((area / len(pix))**0.5 * params[0])
+    border = int((area)**0.5 * params[0] / len(pix))
+    top = int((area)**0.5 * params[1] / len(pix))
+    side = int((area)**0.5 * params[2] / len(pix))
     aspect = 1
     if orientation == 1:
         aspect = 0
@@ -264,10 +263,6 @@ def draw(pix, orientation, sprawlingest, widest_tallest, params, min_side, area)
             x = pic[1] + pic[3]
         if pic[2] + pic[4] > y:
             y = pic[2] + pic[4]
-
-    # add top and side borders
-    top = int(params[1] * border / 5)
-    side = int(params[2] * border / 5)
 
     # increase all coordinates in light of top/bottom and side borders
     for pic in print_folder:
