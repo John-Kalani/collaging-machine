@@ -22,21 +22,21 @@ def main(repeats):
         and faff[0].lower() == "n"
     ):
         pix = getpix()[0]
-        printmostcompact(len(pix)**2, [1, 1, 1, 0])
+        printmostcompact(len(pix)**2, [0.5, 1, 1, 0])
         return
 
     return semi_advanced_suite(repeats)
 
 def printmostcompact(x, params):
-    min_area = [10**10, []]
+    min_bad = [[], 10**10]
     for i in range(x):
         pix, min_side, paramsthrowaway, area = getpix()
         params[-1] = i
         print_complete = layout(copy.deepcopy(pix), min_side, params, area)
         total_area = print_complete[1][0] * print_complete[1][1]
-        if total_area < min_area[0]:
-            min_area = [total_area, print_complete]
-    coll(min_area[1])
+        if print_complete[-1] < min_bad[-1]:
+            min_bad = print_complete
+    coll(print_complete)
 
 
 def coll(print_complete):
@@ -103,7 +103,7 @@ def semi_advanced_suite(repeats):
                     b += 1
             
             if b > 0:
-                params[i] = 0.4 * 1.5**b
+                params[i] = 0.2 * 1.5**b
             else:
                 params[i] = 0
         printmostcompact(len(pix)**2, params)
@@ -266,12 +266,31 @@ def draw(pix, orientation, sprawlingest, widest_tallest, params, min_side, area)
         if pic[2] + pic[4] > y:
             y = pic[2] + pic[4]
 
+    unbalancedness = centreofmass(print_folder, x, y)
+
     # increase all coordinates in light of top/bottom and side borders
     for pic in print_folder:
         pic[3] += side
         pic[4] += top
 
-    return (print_folder, (x + 2 * side, y + 2 * top))
+    return (print_folder, (x + 2 * side, y + 2 * top), unbalancedness)
+
+def centreofmass(print_folder, x, y):
+    offset_x = 0
+    offset_y = 0
+    total_area = 0
+    for pic in print_folder:
+        area = pic[1] * pic[2]
+        offset_x += (pic[3] + pic[1] / 2) * area
+        offset_y += (pic[4] + pic[2] / 2) * area
+        total_area += area
+    ideal_x = x * total_area / 2
+    ideal_y = y * total_area / 2
+    offcentre_x = ideal_x - offset_x
+    offcentre_y = ideal_y - offset_y
+    unbalancedness = (offcentre_x**2 + offcentre_y**2)**0.5 / total_area
+        
+    return (unbalancedness + 2000) * total_area
 
 if __name__ == "__main__":
     main(5)
