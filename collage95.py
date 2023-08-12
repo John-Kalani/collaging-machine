@@ -62,6 +62,7 @@ def advanced_suite(repeats):
         "How much top border do you like? ",
         "How much side border do you like? ",
     )
+    print("this probably won't produce the best results (try trying something different next time)")
     params = [0, 0, 0, 0]
     for rep in range(repeats):
         for i in range(len(displayed)):
@@ -101,7 +102,10 @@ def semi_advanced_suite(repeats):
                 if char in {"b", "B"}:
                     b += 1
             
-            params[i] = 0.4 * 1.5**b
+            if b > 0:
+                params[i] = 0.4 * 1.5**b
+            else:
+                params[i] = 0
         printmostcompact(len(pix)**2, params)
         
 def getpix():
@@ -225,9 +229,9 @@ def draw(pix, orientation, sprawlingest, widest_tallest, params, min_side, area)
                 break
 
     print_folder = []
-    border = int((area * params[0] / len(pix))**0.5)
-    top = int((area * params[1] / len(pix))**0.5)
-    side = int((area * params[2] / len(pix))**0.5)
+    border = int(((area / len(pix))**0.5) * params[0])
+    top = int(((area / len(pix))**0.5) * params[1])
+    side = int(((area / len(pix))**0.5) * params[2])
     aspect = 1
     if orientation == 1:
         aspect = 0
