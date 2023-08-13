@@ -28,15 +28,16 @@ def main(repeats):
     return semi_advanced_suite(repeats)
 
 def printmostcompact(x, params):
-    min_bad = [[], 10**10]
+    min_bad = [[], 10**50]
     for i in range(x):
         pix, min_side, paramsthrowaway, area = getpix()
         params[-1] = i
         print_complete = layout(copy.deepcopy(pix), min_side, params, area)
         total_area = print_complete[1][0] * print_complete[1][1]
-        if print_complete[-1] < min_bad[-1]:
+        if print_complete[2] * total_area < min_bad[-1]:
+            print_complete[2] *= total_area
             min_bad = print_complete
-    coll(print_complete)
+    coll(min_bad)
 
 
 def coll(print_complete):
@@ -273,7 +274,7 @@ def draw(pix, orientation, sprawlingest, widest_tallest, params, min_side, area)
         pic[3] += side
         pic[4] += top
 
-    return (print_folder, (x + 2 * side, y + 2 * top), unbalancedness)
+    return [print_folder, (x + 2 * side, y + 2 * top), unbalancedness]
 
 def centreofmass(print_folder, x, y):
     offset_x = 0
@@ -288,9 +289,9 @@ def centreofmass(print_folder, x, y):
     ideal_y = y * total_area / 2
     offcentre_x = ideal_x - offset_x
     offcentre_y = ideal_y - offset_y
-    unbalancedness = (offcentre_x**2 + offcentre_y**2)**0.5 / total_area
-        
-    return (unbalancedness + 2000) * total_area
+    
+    unbalancedness = (offcentre_x**2 + offcentre_y**2)**0.5 / total_area 
+    return unbalancedness + total_area**0.5
 
 if __name__ == "__main__":
     main(5)
