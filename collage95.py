@@ -12,6 +12,9 @@ if not os.path.exists("coll"):
 
 def main(repeats):
     faff = input("Welcome to the Collage Zone. Make sure you have added the pics to the folder 'coll'. The first time you answer this, it's probably best to just hit enter \nDo you want to faff? ")
+    pix, min_side, params, area, equivalent = getpix()
+    if equivalent:
+        return(equivalent_suite(pix, min_side, params, area, repeats))
     if (
         faff in {"Y", "y"}
         or len(faff) < 5
@@ -78,7 +81,7 @@ def advanced_suite(repeats):
             if i == 0:
                 if rep != 0:
                     if text.lower() == "rs":
-                        params[-1] += 101
+                        params[-1] += 1000
                         print_complete = layout(copy.deepcopy(pix), min_side, params, area)
                         coll(print_complete)
                         break
@@ -120,18 +123,29 @@ def getpix():
     global path
     pix = []
     area = 0
+    dimensions = (0, 0)
+    equivalent = 0
+    
     for i in os.listdir(path):
         if i == ".DS_Store":
             continue
         img = Image.open(path + i)
         x, y = img.size
+        if dimensions[0] == x and dimensions[1] == y:
+            equivalent += 1
+        else:
+            dimensions = (x, y)
         area += x * y
         pix.append([path + i, x, y, 0, 0])
     pix.sort()
+    if equivalent == len(pix) - 1:
+        equivalent = True
+    else:
+        equivalent = False
     for i in range(len(pix)):
         pix[i].append(i)
     min_length = int(area**0.5)
-    return pix, min_length, [1, 1, 1, 0], area
+    return pix, min_length, [1, 1, 1, 0], area, equivalent
 
 
 def layout(pix, min_side, params, area):
@@ -159,7 +173,7 @@ def layout(pix, min_side, params, area):
             tall.append(pic)
     if min_max_side > min_side:
         min_side = min_max_side
-    min_side = int(min_side * 1.5)
+    min_side = int(min_side * 1.3)
     
     if len(wide) + len(tall) == 0 and len(pix) < 4:
         pass
@@ -232,6 +246,7 @@ def draw(pix, orientation, sprawlingest, widest_tallest, params, min_side, area)
 
     print_folder = []
     border = int(((area / len(pix))**0.5) * params[0])
+    min_side += border * len(print_folder)**0.5
     top = int(((area / len(pix))**0.5) * params[1])
     side = int(((area / len(pix))**0.5) * params[2])
     aspect = 1
@@ -294,5 +309,58 @@ def centreofmass(print_folder, x, y):
     unbalancedness = (offcentre_x**2 + offcentre_y**2)**0.5 / total_area 
     return unbalancedness + total_area**0.5
 
+def equivalent_suite(pix, min_side, params, area, repeats):
+    n = len(pix)
+    candidates = []
+    
+    for i in range(1, n + 1):
+        if n % i == 0 and pix[0][1] * n / i <= 2 * min_side and pix[0][1] * n / i >= 0.5 * min_side:
+            candidates.append((i, pix[0][1] * n / (i**2 * pix[0][2])))
+    if candidates == []:
+        return semi_advanced_suite(repeats)
+    candidate = (0, 11)
+    for grouping in candidates:
+        if grouping[1] + 1 / grouping[1] < candidate[1]:
+            candidate = (grouping[0], grouping[1] + 1 / grouping[1])
+
+    def isfloat(x):
+        try:
+            float(x)
+            return True
+        except ValueError:
+            return False
+
+    displayed = (
+        "do you want to reshuffle? Type 'rs' ",
+        "how much border do you like? try using lower numbers ",
+        "How much top border do you like? ",
+        "How much side border do you like? ",
+    )
+    params = [0, 0, 0, 0]
+    for rep in range(repeats):
+        for i in range(len(displayed)):
+            text = input(displayed[i])
+            if i == 0:
+                if rep != 0:
+                    if text.lower() == "rs":
+                        params[-1] += 997
+                        border = int(((area / len(pix))**0.5) * params[0])
+                        min_side = candidate[0] * pix[0][1] + (candidate[0] - 1) * border
+                        print_complete = layout(copy.deepcopy(pix), min_side, params, area)
+                        coll(print_complete)
+                        break
+                continue
+            while not isfloat(text) or float(text) < -5 or float(text) > 19.9:
+                print("enter a number between 0.1 and 10")
+                text = input(displayed[i])
+            params[i - 1] = float(text)
+        if text.lower() == "rs":
+            continue
+        params[-1] = 0
+        border = int(((area / len(pix))**0.5) * params[0])
+        min_side = candidate[0] * pix[0][1] + (candidate[0] - 1) * border
+        print_complete = layout(copy.deepcopy(pix), min_side, params, area)
+        coll(print_complete)  
+    
 if __name__ == "__main__":
-    main(5)
+    main(10)
