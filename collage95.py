@@ -16,6 +16,12 @@ def main(repeats):
         equivalent = equivalent_suite(pix, min_side, params, area, repeats)
         if equivalent:
             return
+        if len(pix) > 2:
+            answer = input("would you prefer to remove a pic and try again? ")
+            if answer.lower() in {"yes", "y"}:
+                main(repeats)
+                return
+        
     if (
         faff in {"Y", "y"}
         or len(faff) < 5
@@ -35,13 +41,14 @@ def main(repeats):
     return semi_advanced_suite(repeats)
 
 def printmostcompact(x, params):
-    not_equivalent = True
     min_bad = [[], 10**50]
     bigrandomnumber = 997
     for i in range(x):
         pix, min_side, paramsthrowaway, area, equivalent = getpix()
         params[-1] = i + bigrandomnumber
-        print_complete = layout(copy.deepcopy(pix), min_side, params, area, equivalent)
+        border = int(((area / len(pix))**0.5) * params[0])
+        min_side_corrected = min_side + len(pix)**0.5 * border
+        print_complete = layout(copy.deepcopy(pix), min_side_corrected, params, area, equivalent)
         total_area = print_complete[1][0] * print_complete[1][1]
         if print_complete[2] * total_area < min_bad[-1]:
             print_complete[2] *= total_area
@@ -97,7 +104,9 @@ def advanced_suite(repeats):
         if text.lower() == "rs":
             continue
         params[-1] = 0
-        print_complete = layout(copy.deepcopy(pix), min_side, params, area, not_equivalent)
+        border = int(((area / len(pix))**0.5) * params[0])
+        min_side_corrected = min_side + len(pix)**0.5 * border
+        print_complete = layout(copy.deepcopy(pix), min_side_corrected, params, area, not_equivalent)
         coll(print_complete)
         
 def semi_advanced_suite(repeats):
@@ -178,17 +187,13 @@ def layout(pix, min_side, params, area, not_equivalent):
     if min_max_side > min_side:
         min_side = min_max_side
     if not_equivalent:
-        min_side = int(min_side * 1.3)
+        min_side = int(min_side * 1.1)
     
     if len(wide) + len(tall) == 0 and len(pix) < 4:
         pass
     orientation = 0
-    if tallest[2] > widest[1]:
+    if tallest[2] > widest[1] and len(tall) > 0:
         orientation = 1
-    if tallest[2] * 1.5 > widest[1] and len(tall) > 0:
-        orientation = 1
-    if not not_equivalent:
-        orientation = 0
     widest_tallest = [widest, tallest]
     print_complete = draw(
         pix, orientation, sprawlingest[1], widest_tallest, params, min_side, area, not_equivalent
