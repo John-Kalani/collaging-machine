@@ -1,20 +1,18 @@
-path = "coll/"
+
 from PIL import Image
 import time
 import os
-from os import listdir
 import copy
 
 if not os.path.exists("coll"):
     # Create the folder
     os.mkdir("coll")
-    print("S")
 
 def main(repeats):
     faff = input("Welcome to the Collage Zone. Make sure you have added the pics to the folder 'coll'. The first time you answer this, it's probably best to just hit enter \nDo you want to faff? ")
     pix, min_side, params, area, equivalent = getpix()
     if equivalent:
-        return(equivalent_suite(pix, min_side, params, area, repeats))
+        return equivalent_suite(pix, min_side, params, area, repeats)
     if (
         faff in {"Y", "y"}
         or len(faff) < 5
@@ -37,9 +35,10 @@ def main(repeats):
 def printmostcompact(x, params):
     not_equivalent = True
     min_bad = [[], 10**50]
+    bigrandomnumber = 997
     for i in range(x):
         pix, min_side, paramsthrowaway, area = getpix()
-        params[-1] = i + 997
+        params[-1] = i + bigrandomnumber
         print_complete = layout(copy.deepcopy(pix), min_side, params, area, not_equivalent)
         total_area = print_complete[1][0] * print_complete[1][1]
         if print_complete[2] * total_area < min_bad[-1]:
@@ -58,15 +57,15 @@ def coll(print_complete):
     collage.show()
     collage.save("coll"+str(int(time.time()))+".jpg",quality=99) 
 
-
+def isfloat(x):
+    try:
+        float(x)
+        return True
+    except ValueError:
+        return False
+    
 def advanced_suite(repeats):
     not_equivalent = True
-    def isfloat(x):
-        try:
-            float(x)
-            return True
-        except ValueError:
-            return False
 
     pix, min_side, params, area = getpix()
     displayed = (
@@ -77,13 +76,14 @@ def advanced_suite(repeats):
     )
     print("this probably won't produce the best results (try trying something different next time)")
     params = [0, 0, 0, 0]
+    bigrandomnumber = 997
     for rep in range(repeats):
         for i in range(len(displayed)):
             text = input(displayed[i])
             if i == 0:
                 if rep != 0:
                     if text.lower() == "rs":
-                        params[-1] += 1000
+                        params[-1] += bigrandomnumber
                         print_complete = layout(copy.deepcopy(pix), min_side, params, area, not_equivalent)
                         coll(print_complete)
                         break
@@ -122,7 +122,7 @@ def semi_advanced_suite(repeats):
         printmostcompact(len(pix)**2, params)
         
 def getpix():
-    global path
+    path = "coll/"
     pix = []
     area = 0
     dimensions = (0, 0)
@@ -184,6 +184,8 @@ def layout(pix, min_side, params, area, not_equivalent):
     if tallest[2] > widest[1]:
         orientation = 0
     if tallest[2] * 1.5 > widest[1] and len(tall) > 0:
+        orientation = 0
+    if not not_equivalent:
         orientation = 0
     widest_tallest = [widest, tallest]
     print_complete = draw(
@@ -319,8 +321,8 @@ def equivalent_suite(pix, min_side, params, area, repeats):
     candidates = []
     
     for i in range(1, n + 1):
-        if n % i == 0 and pix[0][1] * n / i <= 2 * min_side and pix[0][1] * n / i >= 0.5 * min_side:
-            candidates.append((int(n / i), pix[0][1] * n / (i**2 * pix[0][2])))
+        if n % i == 0 and pix[0][1] * n / i < 2 * min_side and pix[0][1] * n / i > 0.5 * min_side:
+            candidates.append((i, pix[0][1] * n / (i**2 * pix[0][2])))
     if len(candidates) == 0:
         return semi_advanced_suite(repeats)
     
@@ -328,13 +330,7 @@ def equivalent_suite(pix, min_side, params, area, repeats):
     for grouping in candidates:
         if grouping[1] + 1 / grouping[1] < candidate[1]:
             candidate = (grouping[0], grouping[1] + 1 / grouping[1])
-    print(candidate)
-    def isfloat(x):
-        try:
-            float(x)
-            return True
-        except ValueError:
-            return False
+    
 
     displayed = (
         "do you want to reshuffle? Type 'rs' ",
