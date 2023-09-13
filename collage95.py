@@ -9,7 +9,7 @@ if not os.path.exists("coll"):
     os.mkdir("coll")
 
 def main(repeats):
-    faff = input("Welcome to the Collage Zone. Make sure you have added the pics to the folder 'coll'. The first time you answer this, it's probably best to just hit enter \nDo you want to faff? ")
+    faff = input("Welcome to the Collage Zone. Make sure you have added the pics ('.jpg') to the folder 'coll'. The first time you answer this, it's probably best to just hit enter \nDo you want to faff? ")
     pix, min_side, params, area, equivalent = getpix()
     background = True
     if equivalent:
@@ -68,9 +68,10 @@ def coll(print_complete, background):
         rgb[0] += r
         rgb[1] += g
         rgb[2] += b
-    if (rgb[0] + rgb[1] + rgb[2]) / len(print_complete[0]) > 450 and background:
+    grey = (rgb[0] + rgb[1] + rgb[2]) / len(print_complete[0])
+    if grey > 450 and background:
         rgb_final = (0, 0, 0)
-    elif (rgb[0] + rgb[1] + rgb[2]) / len(print_complete[0]) > 350 and background:
+    elif grey > 350 and background:
         rgb_final = (int(rgb[1] / (len(print_complete[0]) * f)), int(rgb[2] / (len(print_complete[0]) * f)), int(rgb[0] / (len(print_complete[0]) * f)))
     else:
         rgb_final = (255, 255, 255)  
@@ -78,7 +79,7 @@ def coll(print_complete, background):
     for name in print_complete[0]:
         collage.paste(Image.open(name[0]), (name[3], name[4]))
     collage.show()
-    collage.save("coll"+str(int(time.time()))+".jpg",quality=99) 
+    collage.save("coll"+str(int(time.time()))+".jpg",quality=100) 
 
 def colour(pic):
     img = Image.open(pic)
@@ -139,7 +140,7 @@ def advanced_suite(repeats, background):
         print_complete = layout(copy.deepcopy(pix), min_side_corrected, params, area, not_equivalent)
         coll(print_complete, background)
         
-def semi_advanced_suite(repeats):
+def semi_advanced_suite(repeats, background):
 
     pix, min_side, params, area, not_equivalent = getpix()
     displayed = (
@@ -170,7 +171,7 @@ def getpix():
     equivalent = 0
     
     for i in os.listdir(path):
-        if i in {".DS_Store"}:
+        if not (i[-3] == "j" and i[-2] == "p" and i[-1] == "g"):
             continue
         img = Image.open(path + i)
         x, y = img.size
@@ -298,8 +299,8 @@ def draw(pix, orientation, sprawlingest, widest_tallest, params, min_side, area,
     ## add 'random' pics to print_folder
     rand = params[-1]
     while rand > 0 and len(pix) > 0:
-        print_folder.append(pix[params[-1] % len(pix)])
-        pix.remove(pix[params[-1] % len(pix)])
+        print_folder.append(pix[params[-1]**2 % len(pix)])
+        pix.remove(pix[params[-1]**2 % len(pix)])
         if len(print_folder) > 1:
             addcoordinates(print_folder, min_side, border, orientation, aspect)
         rand -= 1
