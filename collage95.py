@@ -11,9 +11,10 @@ if not os.path.exists("coll"):
 def main(repeats):
     faff = input("Welcome to the Collage Zone. Make sure you have added the pics to the folder 'coll'. The first time you answer this, it's probably best to just hit enter \nDo you want to faff? ")
     pix, min_side, params, area, equivalent = getpix()
+    background = True
     if equivalent:
         print("Mkay - you're using equal sized pics, so let's see about that...")
-        equivalent = equivalent_suite(pix, min_side, params, area, repeats)
+        equivalent = equivalent_suite(pix, min_side, params, area, repeats, background)
         if equivalent:
             return
         if len(pix) > 2:
@@ -29,42 +30,71 @@ def main(repeats):
         and faff[0] in {"y", "Y"}
         and faff[1] in {"e", "E"}
     ):
-        return advanced_suite(repeats)
+        return advanced_suite(repeats, background)
     if (
         faff in {"", "n", "N"}
         or len(faff) < 4
         and faff[0].lower() == "n"
     ):
         pix = getpix()[0]
-        return printmostcompact(len(pix)**2, [0.5, 1, 1, 0])
+        return printmostcompact(len(pix)**2, [0.5, 1, 1, 0], background)
 
-    return semi_advanced_suite(repeats)
+    return semi_advanced_suite(repeats, background)
 
-def printmostcompact(x, params):
+def printmostcompact(x, params, background):
     min_bad = [[], 10**50]
     bigrandomnumber = 997
     for i in range(x):
         pix, min_side, paramsthrowaway, area, equivalent = getpix()
         params[-1] = i + bigrandomnumber
-        border = int(((area / len(pix))**0.5) * params[0])
-        min_side_corrected = min_side + len(pix)**0.5 * border
+        border = int(((area / len(pix))**0.5) * params[0] / 4)
+        min_side_corrected = min_side + (len(pix)**0.5 - 1) * border
         print_complete = layout(copy.deepcopy(pix), min_side_corrected, params, area, equivalent)
         total_area = print_complete[1][0] * print_complete[1][1]
         if print_complete[2] * total_area < min_bad[-1]:
             print_complete[2] *= total_area
             min_bad = print_complete
-    coll(min_bad)
+    coll(min_bad, background)
 
 
-def coll(print_complete):
+def coll(print_complete, background):
+    f = 3
     if len(print_complete[0]) == 0:
         print("add pics to /coll/")
         return
-    collage = Image.new("RGB", print_complete[1], (255, 255, 255))
+    rgb = [0, 0, 0]
+    for pic in print_complete[0]:
+        r, g, b = colour(pic[0])
+        rgb[0] += r
+        rgb[1] += g
+        rgb[2] += b
+    if (rgb[0] + rgb[1] + rgb[2]) / len(print_complete[0]) > 450 and background:
+        rgb_final = (0, 0, 0)
+    elif (rgb[0] + rgb[1] + rgb[2]) / len(print_complete[0]) > 350 and background:
+        rgb_final = (int(rgb[1] / (len(print_complete[0]) * f)), int(rgb[2] / (len(print_complete[0]) * f)), int(rgb[0] / (len(print_complete[0]) * f)))
+    else:
+        rgb_final = (255, 255, 255)  
+    collage = Image.new("RGB", print_complete[1], rgb_final)
     for name in print_complete[0]:
         collage.paste(Image.open(name[0]), (name[3], name[4]))
     collage.show()
     collage.save("coll"+str(int(time.time()))+".jpg",quality=99) 
+
+def colour(pic):
+    img = Image.open(pic)
+    x, y = img.size
+    points = 0
+    total = [0, 0, 0]
+    for i in range(1, x, 10):
+        for j in range(1, y, 10):
+            points += 1
+            rgb = img.getpixel((i, j))
+            total[0] += rgb[0]
+            total[1] += rgb[1]
+            total[2] += rgb[2]
+    for i in range(3):
+        total[i] = int(total[i] / points)
+    return total[0], total[1], total[2]
 
 def isfloat(x):
     try:
@@ -73,7 +103,7 @@ def isfloat(x):
     except ValueError:
         return False
     
-def advanced_suite(repeats):
+def advanced_suite(repeats, background):
     not_equivalent = True
 
     pix, min_side, params, area, equivalent = getpix()
@@ -97,17 +127,17 @@ def advanced_suite(repeats):
                         coll(print_complete)
                         break
                 continue
-            while not isfloat(text) or float(text) < -5 or float(text) > 19.9:
-                print("enter a number between 0.1 and 10")
+            while not isfloat(text) or float(text) < -5 or float(text) > 30:
+                print("enter a number between -5 and 30")
                 text = input(displayed[i])
             params[i - 1] = float(text)
         if text.lower() == "rs":
             continue
         params[-1] = 0
-        border = int(((area / len(pix))**0.5) * params[0])
-        min_side_corrected = min_side + len(pix)**0.5 * border
+        border = int(((area / len(pix))**0.5) * params[0] / 4)
+        min_side_corrected = min_side + (len(pix)**0.5 - 1) * border
         print_complete = layout(copy.deepcopy(pix), min_side_corrected, params, area, not_equivalent)
-        coll(print_complete)
+        coll(print_complete, background)
         
 def semi_advanced_suite(repeats):
 
@@ -127,10 +157,10 @@ def semi_advanced_suite(repeats):
                     b += 1
             
             if b > 0:
-                params[i] = 0.1 * 1.5**b
+                params[i] = 0.2 * 1.5**b
             else:
                 params[i] = 0
-        printmostcompact(len(pix)**2, params)
+        printmostcompact(len(pix)**2, params, background)
         
 def getpix():
     path = "coll/"
@@ -257,11 +287,11 @@ def draw(pix, orientation, sprawlingest, widest_tallest, params, min_side, area,
                 break
 
     print_folder = []
-    border = int(((area / len(pix))**0.5) * params[0])
+    border = int(((area / len(pix))**0.5) * params[0] / 4)
     if not_equivalent:
         min_side += border * len(print_folder)**0.5
-    top = int(((area / len(pix))**0.5) * params[1])
-    side = int(((area / len(pix))**0.5) * params[2])
+    top = int(((area / len(pix))**0.5) * params[1] / 4)
+    side = int(((area / len(pix))**0.5) * params[2] / 4)
     aspect = 1
     if orientation == 1:
         aspect = 0
@@ -322,14 +352,14 @@ def centreofmass(print_folder, x, y):
     unbalancedness = (offcentre_x**2 + offcentre_y**2)**0.5 / total_area 
     return unbalancedness + total_area**0.5
 
-def equivalent_suite(pix, min_side, params, area, repeats):
+def equivalent_suite(pix, min_side, params, area, repeats, background):
     not_equivalent = False
     n = len(pix)
     candidates = []
     
     for i in range(1, n + 1):
         if n % i == 0 and pix[0][1] * n / i < 2 * min_side and pix[0][1] * n / i > 0.5 * min_side:
-            candidates.append((int(n / i + 0.1), pix[0][1] * n / (i**2 * pix[0][2])))
+            candidates.append((int((n / i) + 0.1), pix[0][1] * n / (i**2 * pix[0][2])))
     if len(candidates) == 0:
         return False
     
@@ -353,24 +383,23 @@ def equivalent_suite(pix, min_side, params, area, repeats):
                 if rep != 0:
                     if text.lower() == "rs":
                         params[-1] += 997
-                        border = int(((area / len(pix))**0.5) * params[0])
+                        border = int(((area / len(pix))**0.5) * params[0] / 4)
                         min_side = candidate[0] * pix[0][1] + (candidate[0] - 1) * border
                         print_complete = layout(copy.deepcopy(pix), min_side, params, area, not_equivalent)
-                        coll(print_complete)
+                        coll(print_complete, background)
                         break
                 continue
-            while not isfloat(text) or float(text) < -5 or float(text) > 19.9:
-                print("enter a number between 0.1 and 10")
+            while not isfloat(text) or float(text) < -5 or float(text) > 30:
+                print("enter a number between -5 and 30")
                 text = input(displayed[i])
             params[i - 1] = float(text) / 4
         if text.lower() == "rs":
             continue
         params[-1] = 0
-        border = int(((area / len(pix))**0.5) * params[0])
+        border = int(((area / len(pix))**0.5) * params[0] / 4)
         min_side = candidate[0] * pix[0][1] + (candidate[0] - 1) * border
-        print(min_side, border)
         print_complete = layout(copy.deepcopy(pix), min_side, params, area, not_equivalent)
-        coll(print_complete)
+        coll(print_complete, background)
     return True
     
 if __name__ == "__main__":
